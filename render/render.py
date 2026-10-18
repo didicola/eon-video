@@ -72,25 +72,25 @@ def build_scene(rng):
 
     # stars: 3 parallax layers (count, drift px/s, size, brightness)
     layers = []
-    for count, speed, size, bright in ((240, 7.0, 1, 0.38), (150, 15.0, 1, 0.60), (85, 27.0, 2, 0.90)):
+    for count, speed, size, bright in ((270, 7.0, 1, 0.42), (175, 15.0, 1, 0.66), (105, 27.0, 2, 0.95)):
         layers.append((rng.rand(count) * W, rng.rand(count) * H, speed, size, bright,
                        0.35 + 0.65 * rng.rand(count), rng.rand(count) * math.tau))
 
     # fleets: cyan from the left, ember-orange from the right
     ships = []
-    for i in range(26):
+    for i in range(34):
         left = (i % 2 == 0)
         ships.append(dict(
             t0=4.0 + rng.uniform(0.0, 4.6),
             y0=rng.uniform(0.16, 0.84) * H,
             x0=(-90.0 - rng.uniform(0, 260)) if left else (W + 90.0 + rng.uniform(0, 260)),
-            vx=rng.uniform(150, 300) * (1 if left else -1),
-            vy=rng.uniform(-26, 26),
+            vx=rng.uniform(140, 320) * (1 if left else -1),
+            vy=rng.uniform(-30, 30),
             life=rng.uniform(4.2, 7.0),
             col=(118, 216, 255) if left else (255, 152, 72)))
 
     beams = []
-    for i in range(14):
+    for i in range(18):
         left = (i % 2 == 0)
         beams.append(dict(
             te=rng.uniform(4.9, 12.7),
@@ -101,15 +101,15 @@ def build_scene(rng):
             col=(150, 232, 255) if left else (255, 176, 96)))
 
     flashes, sparks = [], []
-    for _ in range(11):
-        te = rng.uniform(5.3, 12.9)
+    for _ in range(13):
+        te = rng.uniform(5.0, 13.5)
         x, y = rng.uniform(0.16, 0.84) * W, rng.uniform(0.20, 0.80) * H
         mag = rng.uniform(0.55, 1.0)
         flashes.append(dict(te=te, x=x, y=y, mag=mag))
-        for _ in range(24):
+        for _ in range(30):
             sparks.append(dict(te=te, x=x, y=y,
                                a=rng.uniform(0, math.tau),
-                               sp=rng.uniform(80, 430) * mag,
+                               sp=rng.uniform(90, 520) * mag,
                                li=rng.uniform(0.5, 1.5),
                                col=(255, int(rng.uniform(165, 230)), int(rng.uniform(70, 140)))))
 
@@ -117,7 +117,7 @@ def build_scene(rng):
                    x=rng.uniform(0.08, 0.92) * W,
                    y=rng.uniform(0.10, 0.90) * H,
                    vx=rng.uniform(-8, 8), vy=rng.uniform(-14, -4),
-                   ph=rng.uniform(0, math.tau)) for _ in range(70)]
+                   ph=rng.uniform(0, math.tau)) for _ in range(110)]
 
     return dict(neb=neb, layers=layers, ships=ships, beams=beams,
                 flashes=flashes, sparks=sparks, embers=embers)
@@ -141,8 +141,8 @@ def make_frame(sc, cfg, i):
         dt = ts - f["te"]
         if 0.0 <= dt < 0.5:
             amp += f["mag"] * (1.0 - dt / 0.5) * 7.0
-    sx = math.sin(t * 57.3) * amp
-    sy = math.cos(t * 71.7) * amp * 0.7
+    sx = math.sin(t * 57.3) * amp + 10.0 * math.sin(t * 0.25)
+    sy = math.cos(t * 71.7) * amp * 0.7 + 6.0 * math.cos(t * 0.19)
 
     # stars (twinkle + drift + shake)
     for xs, ys, speed, size, bright, bs, ph in sc["layers"]:
@@ -164,45 +164,53 @@ def make_frame(sc, cfg, i):
             cx = s["x0"] + s["vx"] * dt + sx
             cy = s["y0"] + s["vy"] * dt + sy
             for k in range(12):
-                k1, k2 = k * 0.036, (k + 1) * 0.036
+                k1, k2 = k * 0.042, (k + 1) * 0.042
                 xa = s["x0"] + s["vx"] * (dt - k2) + sx
                 ya = s["y0"] + s["vy"] * (dt - k2) + sy
                 xb = s["x0"] + s["vx"] * (dt - k1) + sx
                 yb = s["y0"] + s["vy"] * (dt - k1) + sy
-                f = (1.0 - k / 12.0) ** 1.7
+                f = (1.0 - k / 12.0) ** 1.4
                 g.line((xa, ya, xb, yb),
-                       fill=(int(col[0] * f * 0.9), int(col[1] * f * 0.9), int(col[2] * f * 0.9)),
-                       width=2)
-            g.ellipse((cx - 3.5, cy - 3.5, cx + 3.5, cy + 3.5), fill=col)
+                       fill=(int(col[0] * f), int(col[1] * f), int(col[2] * f)),
+                       width=3)
+            g.ellipse((cx - 4.5, cy - 4.5, cx + 4.5, cy + 4.5), fill=col)
             m.ellipse((cx - 2, cy - 2, cx + 2, cy + 2),
                       fill=(min(255, col[0] + 50), min(255, col[1] + 40), min(255, col[2] + 40)))
 
     # beams (brief shots)
     for b in sc["beams"]:
         dte = abs(ts - b["te"])
-        if dte < 0.08:
-            f = 1.0 - dte / 0.08
+        if dte < 0.10:
+            f = 1.0 - dte / 0.10
             x2 = b["x"] + math.cos(b["ang"]) * b["L"]
             y2 = b["y"] + math.sin(b["ang"]) * b["L"]
-            g.line((b["x"], b["y"], x2, y2), fill=tuple(int(c * f) for c in b["col"]), width=4)
+            g.line((b["x"], b["y"], x2, y2), fill=tuple(int(c * f) for c in b["col"]), width=6)
             m.line((b["x"], b["y"], x2, y2), fill=(int(240 * f), int(250 * f), 255), width=1)
 
     # explosions: shock ring + expanding core + sparks
     fk = 0.0
     for f in sc["flashes"]:
         dt = ts - f["te"]
+        x, y, mag = f["x"] + sx, f["y"] + sy, f["mag"]
         if 0.0 <= dt < 1.0:
             k = 1.0 - dt
-            x, y, mag = f["x"], f["y"], f["mag"]
-            r = 8 + 120 * (dt ** 0.55) * mag
+            r = 8 + 130 * (dt ** 0.55) * mag
             g.ellipse((x - r, y - r, x + r, y + r),
-                      outline=(int(255 * k), int(215 * k), int(150 * k)), width=3)
+                      outline=(int(255 * k), int(215 * k), int(150 * k)), width=4)
             if dt < 0.22:
-                r2 = 10 + 70 * (dt / 0.22) * mag
+                r2 = 14 + 90 * (dt / 0.22) * mag
                 g.ellipse((x - r2, y - r2, x + r2, y + r2),
                           fill=(int(255 * k), int(245 * k), int(210 * k)))
+            if dt < 0.10:
+                r3 = 6 + 55 * (dt / 0.10) * mag
+                g.ellipse((x - r3, y - r3, x + r3, y + r3), fill=(255, 252, 240))
             if dt < 0.16:
                 fk += mag * (1.0 - dt / 0.16)
+        elif 1.0 <= dt < 6.5:
+            w = (1.0 - (dt - 1.0) / 5.5) * 0.5
+            rh = 40 + 130 * (dt - 1.0) / 5.5
+            g.ellipse((x - rh, y - rh, x + rh, y + rh),
+                      fill=(int(26 * w), int(18 * w), int(12 * w)))
     for s in sc["sparks"]:
         dts = ts - s["te"]
         if 0.0 <= dts < s["li"]:
@@ -210,7 +218,7 @@ def make_frame(sc, cfg, i):
             x = s["x"] + math.cos(s["a"]) * s["sp"] * dts + sx
             y = s["y"] + math.sin(s["a"]) * s["sp"] * dts + 90 * dts * dts + sy
             c = tuple(int(cc * f) for cc in s["col"])
-            g.ellipse((x - 1.5, y - 1.5, x + 1.5, y + 1.5), fill=c)
+            g.ellipse((x - 1.8, y - 1.8, x + 1.8, y + 1.8), fill=c)
 
     # aftermath embers
     for e in sc["embers"]:
@@ -219,8 +227,8 @@ def make_frame(sc, cfg, i):
             f = max(0.0, 1.0 - dte / 6.5)
             x = e["x"] + e["vx"] * dte + 6 * math.sin(dte * 1.2 + e["ph"]) + sx
             y = e["y"] + e["vy"] * dte + sy
-            g.ellipse((x - 1.2, y - 1.2, x + 1.2, y + 1.2),
-                      fill=(int(255 * f), int(130 * f), int(50 * f)))
+            g.ellipse((x - 1.5, y - 1.5, x + 1.5, y + 1.5),
+                      fill=(int(255 * f), int(142 * f), int(56 * f)))
 
     # titles
     fnt_big, fnt_sub, fnt_end = sc["fonts"]
@@ -235,11 +243,11 @@ def make_frame(sc, cfg, i):
         w2 = text_w(m, s2, fnt_sub, 6)
         draw_tracked(m, (W - w2) / 2.0, y1 + 118, s2, fnt_sub,
                      (int(150 * a_t), int(158 * a_t), int(182 * a_t)), 6)
-    a_e = ss(16.3, 17.2, ts) * (1.0 - ss(19.2, 19.9, ts))
+    a_e = ss(15.9, 16.8, ts) * (1.0 - ss(19.2, 19.9, ts))
     if a_e > 0.01:
         s3 = "EON · free cloud render · ffmpeg on a GitHub runner"
         w3 = text_w(m, s3, fnt_end, 4)
-        draw_tracked(m, (W - w3) / 2.0, H - 64, s3, fnt_end,
+        draw_tracked(m, (W - w3) / 2.0, H - 74, s3, fnt_end,
                      (int(140 * a_e), int(140 * a_e), int(156 * a_e)), 4)
 
     # compose: nebula+stars, bloom, crisp, screen flash
@@ -321,7 +329,7 @@ def main():
     frames = int(round(args.fps * args.dur))
     rng = np.random.RandomState(args.seed)
     sc = build_scene(rng)
-    sc["fonts"] = (load_font(86), load_font(28), load_font(19))
+    sc["fonts"] = (load_font(86), load_font(28), load_font(26))
 
     rg = np.random.RandomState(args.seed + 7)
     grain = [rg.randint(-4, 5, size=(H, W, 3)).astype(np.float32) for _ in range(6)]
