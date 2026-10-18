@@ -63,7 +63,7 @@ def build_scene(rng):
     for _ in range(8):
         cx, cy = rng.rand() * W, rng.rand() * H
         rad = rng.uniform(200, 520)
-        b = rng.choice(((34, 42, 96), (58, 38, 96), (22, 62, 100), (46, 34, 82)))
+        b = ((34, 42, 96), (58, 38, 96), (22, 62, 100), (46, 34, 82))[int(rng.randint(0, 4))]
         for k in range(12):
             r = rad * (1.0 - k / 12.0)
             a = int(9 + 6 * (k / 12.0) ** 2)
