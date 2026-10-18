@@ -325,7 +325,7 @@ def main():
     sc["fonts"] = (load_font(86), load_font(28), load_font(19))
 
     rg = np.random.RandomState(args.seed + 7)
-    grain = [rg.integers(-4, 5, size=(H, W, 3)).astype(np.float32) for _ in range(6)]
+    grain = [rg.randint(-4, 5, size=(H, W, 3)).astype(np.float32) for _ in range(6)]
     yy, xx = np.mgrid[0:H, 0:W]
     rr = np.sqrt(((xx - W / 2.0) / (W / 2.0)) ** 2 + ((yy - H / 2.0) / (H / 2.0)) ** 2) / math.sqrt(2.0)
     vig = (1.0 - 0.55 * np.clip(rr, 0, 1.0) ** 2.2).astype(np.float32)[:, :, None]
