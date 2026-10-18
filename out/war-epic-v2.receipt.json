@@ -4,9 +4,9 @@
   "fps": 30,
   "dur": 20.0,
   "frames": 600,
-  "sha256": "e2436fe3a6536e0a2bdcae2f72d924b875b1c24056223b7c686ea489e53e3f13",
-  "bytes": 10273478,
-  "render_seconds": 26.3,
+  "sha256": "34a397dc7c2ca46a96f5a4d90bbeeab43f6ac98dc87bbbdee9e7beaf1c8ea009",
+  "bytes": 10333859,
+  "render_seconds": 41.6,
   "streams": [
     {
       "codec_name": "h264",
