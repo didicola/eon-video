@@ -1,0 +1,71 @@
+name: eon-render
+
+on:
+  workflow_dispatch:
+    inputs:
+      name:
+        description: "output name"
+        default: "war-epic-v2"
+      seed:
+        description: "numeric seed"
+        default: "20261018"
+      dur:
+        description: "duration (seconds)"
+        default: "20"
+      fps:
+        description: "frames per second"
+        default: "30"
+  push:
+    paths: ["render/**"]
+
+concurrency:
+  group: render
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+
+jobs:
+  render:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: deps
+        run: |
+          pip install --quiet pillow numpy
+          python -c "import PIL, numpy; print('pillow', PIL.__version__, '| numpy', numpy.__version__)"
+
+      - name: render
+        run: |
+          python render/render.py \
+            --name "${{ inputs.name || 'war-epic-v2' }}" \
+            --seed "${{ inputs.seed || '20261018' }}" \
+            --dur "${{ inputs.dur || '20' }}" \
+            --fps "${{ inputs.fps || '30' }}"
+
+      - name: receipt
+        run: cat out/*.receipt.json
+
+      - name: commit out/
+        run: |
+          git config user.name "eon-render"
+          git config user.email "eon-render@users.noreply.github.com"
+          git add -A out
+          if git diff --cached --quiet; then
+            echo "no changes to commit"
+          else
+            git commit -m "render: ${{ inputs.name || 'war-epic-v2' }} (run ${{ github.run_id }})"
+            git push
+          fi
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: "${{ inputs.name || 'war-epic-v2' }}"
+          path: out/
+          retention-days: 14
