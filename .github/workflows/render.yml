@@ -38,6 +38,9 @@ jobs:
 
       - name: deps
         run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq ffmpeg fonts-dejavu-core
+          ffmpeg -version | head -1
           pip install --quiet pillow numpy
           python -c "import PIL, numpy; print('pillow', PIL.__version__, '| numpy', numpy.__version__)"
 
