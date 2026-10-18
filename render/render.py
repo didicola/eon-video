@@ -243,7 +243,7 @@ def make_frame(sc, cfg, i):
                      (int(140 * a_e), int(140 * a_e), int(156 * a_e)), 4)
 
     # compose: nebula+stars, bloom, crisp, screen flash
-    comb = ImageChops.add(canvas, g.filter(ImageFilter.GaussianBlur(7)))
+    comb = ImageChops.add(canvas, glow.filter(ImageFilter.GaussianBlur(7)))
     comb = ImageChops.add(comb, mov)
     if fk > 0.01:
         flat = Image.new("RGB", (W, H), (int(78 * fk), int(68 * fk), int(56 * fk)))
