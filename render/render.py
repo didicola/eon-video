@@ -28,9 +28,8 @@ W, H = 1280, 720      # render size
 
 
 def ss(e0, e1, x):
-    """smoothstep"""
-    t = (x - e0) / (e1 - e0)
-    t = 0.0 if t < 0.0 else (1.0 if t > 1.0 else t)
+    """smoothstep — works for scalars and numpy arrays"""
+    t = np.clip((x - e0) / (e1 - e0), 0.0, 1.0)
     return t * t * (3.0 - 2.0 * t)
 
 
@@ -253,7 +252,7 @@ def make_frame(sc, cfg, i):
     # global brightness + vignette + grain -> bytes
     bright = ss(0.0, 0.6, ts) * (1.0 - ss(17.6, 19.9, ts))
     arr = np.asarray(comb).astype(np.float32)
-    arr *= bright
+    arr *= float(bright)
     np.multiply(arr, cfg["vig"], out=arr)
     if bright > 0.05:
         arr += cfg["grain"][i % len(cfg["grain"])]
