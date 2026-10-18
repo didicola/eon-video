@@ -1,0 +1,36 @@
+{
+  "name": "war-epic-v2",
+  "seed": 20261018,
+  "fps": 30,
+  "dur": 20.0,
+  "frames": 600,
+  "sha256": "e2436fe3a6536e0a2bdcae2f72d924b875b1c24056223b7c686ea489e53e3f13",
+  "bytes": 10273478,
+  "render_seconds": 26.3,
+  "streams": [
+    {
+      "codec_name": "h264",
+      "codec_type": "video",
+      "width": 1280,
+      "height": 720,
+      "nb_frames": "600",
+      "duration": "20.000000"
+    },
+    {
+      "codec_name": "aac",
+      "codec_type": "audio",
+      "width": null,
+      "height": null,
+      "nb_frames": "863",
+      "duration": "20.000000"
+    }
+  ],
+  "python": "3.12.15",
+  "pillow": "13.0.0",
+  "numpy": "2.5.4",
+  "ffmpeg": "ffmpeg version 6.1.1-3ubuntu5 Copyright (c) 2000-2023 the FFmpeg developers",
+  "host": "runnervm8k3b6",
+  "platform": "Linux-6.17.0-1022-azure-x86_64-with-glibc2.39",
+  "cpus": 4,
+  "timeline": "war-epic v2 - 3-act space battle (stars / fleets / aftermath), synthesized audio"
+}
